@@ -744,9 +744,9 @@ ul {
 
 .process-step-number {
   position: absolute;
-  left: -48px;
-  width: 48px;
-  height: 48px;
+  left: -44px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -754,7 +754,7 @@ ul {
   border: 2px solid var(--gold-500);
   border-radius: 50%;
   font-family: var(--font-heading);
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--gold-600);
   z-index: 1;
