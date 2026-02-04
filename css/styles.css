@@ -175,7 +175,7 @@ ul {
 .logo-text {
   display: flex;
   flex-direction: column;
-  padding-top: 6px;
+  transform: translateY(4px);
 }
 
 .logo-acronym {
