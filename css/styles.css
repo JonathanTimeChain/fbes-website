@@ -167,9 +167,14 @@ ul {
 }
 
 .logo-icon {
-  font-size: 96px;
-  color: var(--gold-500);
-  line-height: 0.45;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.logo-icon--sm {
+  width: 28px;
+  height: 28px;
 }
 
 .logo-text {
@@ -1273,7 +1278,8 @@ ul {
 }
 
 .footer-logo .logo-icon {
-  font-size: 24px;
+  width: 28px;
+  height: 28px;
 }
 
 .footer-logo .logo-acronym {
