@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Self-Assessment Tool | FBES</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #d4a012;
+      --gold-light: #e8c547;
+      --dark: #1a1a1a;
+      --darker: #0d0d0d;
+      --gray: #2a2a2a;
+      --gray-light: #3a3a3a;
+      --text: #e0e0e0;
+      --text-dim: #888;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--darker);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    header {
+      text-align: center;
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--gray);
+      margin-bottom: 2rem;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .subtitle {
+      color: var(--text-dim);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    .progress-bar {
+      background: var(--gray);
+      border-radius: 10px;
+      height: 8px;
+      margin: 2rem 0;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+    .progress-text {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+    .page { display: none; }
+    .page.active { display: block; }
+    .category-header {
+      background: var(--gray);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+    }
+    .category-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+    .category-weight {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+    }
+    .question-card {
+      background: var(--dark);
+      border: 1px solid var(--gray);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .question-text {
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+      line-height: 1.5;
+    }
+    .question-guidance {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+    .options {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .option {
+      flex: 1;
+      min-width: 100px;
+    }
+    .option input { display: none; }
+    .option label {
+      display: block;
+      padding: 0.75rem 1rem;
+      text-align: center;
+      background: var(--gray);
+      border: 2px solid var(--gray-light);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+    .option label:hover {
+      border-color: var(--gold);
+    }
+    .option input:checked + label {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--dark);
+    }
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--gray);
+    }
+    .btn {
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      font-size: 1rem;
+    }
+    .btn-primary {
+      background: var(--gold);
+      color: var(--dark);
+    }
+    .btn-primary:hover {
+      background: var(--gold-light);
+    }
+    .btn-secondary {
+      background: var(--gray);
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: var(--gray-light);
+    }
+    .results-section {
+      text-align: center;
+      padding: 3rem 0;
+    }
+    .score-display {
+      font-size: 5rem;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+    .score-label {
+      font-size: 1.2rem;
+      color: var(--text-dim);
+      margin-bottom: 2rem;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+    .status-ready { background: var(--green); color: #000; }
+    .status-nearly { background: var(--yellow); color: #000; }
+    .status-needs { background: var(--red); color: #fff; }
+    .category-scores {
+      text-align: left;
+      margin-top: 3rem;
+    }
+    .cat-score-row {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--gray);
+    }
+    .cat-score-name {
+      flex: 1;
+      font-weight: 500;
+    }
+    .cat-score-bar {
+      flex: 2;
+      background: var(--gray);
+      height: 12px;
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 0 1rem;
+    }
+    .cat-score-fill {
+      height: 100%;
+      border-radius: 6px;
+    }
+    .cat-score-value {
+      width: 50px;
+      text-align: right;
+      font-weight: 600;
+    }
+    .intro-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    .feature {
+      background: var(--gray);
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .feature-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    .feature-desc {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+    .cta-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">FBES</div>
+      <h1>Standards Self-Assessment Tool</h1>
+      <p class="subtitle">Evaluate your Bitcoin education curriculum against FBES standards. Get a detailed readiness report with actionable recommendations.</p>
+    </header>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+    <div class="progress-text" id="progressText">Introduction</div>
+
+    <!-- Page 0: Welcome -->
+    <div class="page active" id="page-0">
+      <div class="intro-features">
+        <div class="feature">
+          <div class="feature-icon">📊</div>
+          <div class="feature-title">8 Categories</div>
+          <div class="feature-desc">Comprehensive evaluation across all dimensions</div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">⏱️</div>
+          <div class="feature-title">20-30 Minutes</div>
+          <div class="feature-desc">Complete assessment in one session</div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🔒</div>
+          <div class="feature-title">Private</div>
+          <div class="feature-desc">Responses stored locally only</div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">📋</div>
+          <div class="feature-title">Detailed Report</div>
+          <div class="feature-desc">Actionable gap analysis & recommendations</div>
+        </div>
+      </div>
+      
+      <h2 style="margin: 2rem 0 1rem;">What You'll Assess</h2>
+      <div style="background: var(--gray); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+        <ul style="list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <li>✓ Technical Accuracy (20%)</li>
+          <li>✓ Economic Foundations (15%)</li>
+          <li>✓ Completeness of Coverage (15%)</li>
+          <li>✓ Pedagogical Quality (15%)</li>
+          <li>✓ Neutrality & Objectivity (10%)</li>
+          <li>✓ Currency & Relevance (10%)</li>
+          <li>✓ Accessibility & Inclusion (10%)</li>
+          <li>✓ Ethical Standards (5%)</li>
+        </ul>
+      </div>
+      
+      <div class="cta-buttons">
+        <button class="btn btn-primary" onclick="startAssessment()">Start Assessment →</button>
+      </div>
+    </div>
+
+    <!-- Category Pages (1-8) -->
+    <div class="page" id="page-1">
+      <div class="category-header">
+        <div class="category-title">Category 1: Technical Accuracy</div>
+        <div class="category-weight">Weight: 20% of overall score</div>
+      </div>
+      
+      <div class="question-card">
+        <div class="question-text">1.1 Does your curriculum correctly explain Bitcoin's consensus mechanism (proof-of-work)?</div>
+        <div class="question-guidance">Including difficulty adjustment, block time targeting, and the role of miners vs. nodes.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q1_1" id="q1_1_yes" value="2"><label for="q1_1_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q1_1" id="q1_1_partial" value="1"><label for="q1_1_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q1_1" id="q1_1_no" value="0"><label for="q1_1_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">1.2 Are cryptographic concepts (SHA-256, ECDSA/Schnorr, Merkle trees) explained accurately?</div>
+        <div class="question-guidance">At an appropriate level of detail for your target audience.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q1_2" id="q1_2_yes" value="2"><label for="q1_2_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q1_2" id="q1_2_partial" value="1"><label for="q1_2_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q1_2" id="q1_2_no" value="0"><label for="q1_2_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">1.3 Does your curriculum accurately describe Bitcoin's network architecture?</div>
+        <div class="question-guidance">P2P topology, block propagation, mempool behavior, and node types.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q1_3" id="q1_3_yes" value="2"><label for="q1_3_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q1_3" id="q1_3_partial" value="1"><label for="q1_3_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q1_3" id="q1_3_no" value="0"><label for="q1_3_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">1.4 Is the Bitcoin transaction lifecycle explained correctly, including the UTXO model?</div>
+        <div class="question-guidance">Creation, signing, broadcasting, validation, and confirmation.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q1_4" id="q1_4_yes" value="2"><label for="q1_4_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q1_4" id="q1_4_partial" value="1"><label for="q1_4_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q1_4" id="q1_4_no" value="0"><label for="q1_4_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">1.5 Does your curriculum correctly explain Bitcoin's supply schedule?</div>
+        <div class="question-guidance">Halving mechanism, 21 million cap, stock vs. flow.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q1_5" id="q1_5_yes" value="2"><label for="q1_5_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q1_5" id="q1_5_partial" value="1"><label for="q1_5_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q1_5" id="q1_5_no" value="0"><label for="q1_5_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
+        <button class="btn btn-primary" onclick="nextPage()">Next Category →</button>
+      </div>
+    </div>
+
+    <!-- Category 2: Economic Foundations -->
+    <div class="page" id="page-2">
+      <div class="category-header">
+        <div class="category-title">Category 2: Economic & Monetary Foundations</div>
+        <div class="category-weight">Weight: 15% of overall score</div>
+      </div>
+      
+      <div class="question-card">
+        <div class="question-text">2.1 Does your curriculum include a substantive overview of monetary history?</div>
+        <div class="question-guidance">Evolution from commodity money to representative money to fiat currency.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q2_1" id="q2_1_yes" value="2"><label for="q2_1_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q2_1" id="q2_1_partial" value="1"><label for="q2_1_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q2_1" id="q2_1_no" value="0"><label for="q2_1_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">2.2 Are the properties of sound money explicitly defined and applied to Bitcoin?</div>
+        <div class="question-guidance">Durability, portability, divisibility, uniformity, scarcity, acceptability.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q2_2" id="q2_2_yes" value="2"><label for="q2_2_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q2_2" id="q2_2_partial" value="1"><label for="q2_2_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q2_2" id="q2_2_no" value="0"><label for="q2_2_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">2.3 Does the curriculum compare Bitcoin with existing monetary systems?</div>
+        <div class="question-guidance">Fiat currencies, gold standard — in a structured, evidence-based manner.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q2_3" id="q2_3_yes" value="2"><label for="q2_3_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q2_3" id="q2_3_partial" value="1"><label for="q2_3_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q2_3" id="q2_3_no" value="0"><label for="q2_3_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">2.4 Are economic risks and criticisms of Bitcoin presented alongside its merits?</div>
+        <div class="question-guidance">Volatility, deflationary concerns, wealth concentration, energy expenditure.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q2_4" id="q2_4_yes" value="2"><label for="q2_4_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q2_4" id="q2_4_partial" value="1"><label for="q2_4_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q2_4" id="q2_4_no" value="0"><label for="q2_4_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">2.5 Does the curriculum address inflation/deflation dynamics with Bitcoin's fixed supply?</div>
+        <div class="question-guidance">Including acknowledgment of economic debate around these topics.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q2_5" id="q2_5_yes" value="2"><label for="q2_5_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q2_5" id="q2_5_partial" value="1"><label for="q2_5_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q2_5" id="q2_5_no" value="0"><label for="q2_5_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
+        <button class="btn btn-primary" onclick="nextPage()">Next Category →</button>
+      </div>
+    </div>
+
+    <!-- Category 3: Completeness -->
+    <div class="page" id="page-3">
+      <div class="category-header">
+        <div class="category-title">Category 3: Completeness of Coverage</div>
+        <div class="category-weight">Weight: 15% of overall score</div>
+      </div>
+      
+      <div class="question-card">
+        <div class="question-text">3.1 Does your curriculum have a clearly stated scope, target audience, and program level?</div>
+        <div class="question-guidance">Introductory, intermediate, advanced, or professional.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q3_1" id="q3_1_yes" value="2"><label for="q3_1_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q3_1" id="q3_1_partial" value="1"><label for="q3_1_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q3_1" id="q3_1_no" value="0"><label for="q3_1_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">3.2 Does the curriculum build in progressive complexity?</div>
+        <div class="question-guidance">Foundational concepts established before advanced material.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q3_2" id="q3_2_yes" value="2"><label for="q3_2_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q3_2" id="q3_2_partial" value="1"><label for="q3_2_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q3_2" id="q3_2_no" value="0"><label for="q3_2_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">3.3 Does the curriculum include both theoretical knowledge and practical application?</div>
+        <div class="question-guidance">Setting up wallets, verifying transactions, running nodes, etc.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q3_3" id="q3_3_yes" value="2"><label for="q3_3_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q3_3" id="q3_3_partial" value="1"><label for="q3_3_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q3_3" id="q3_3_no" value="0"><label for="q3_3_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">3.4 Does the curriculum cover Bitcoin's history and key events?</div>
+        <div class="question-guidance">Whitepaper, genesis block, forks, scaling debate, adoption milestones.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q3_4" id="q3_4_yes" value="2"><label for="q3_4_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q3_4" id="q3_4_partial" value="1"><label for="q3_4_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q3_4" id="q3_4_no" value="0"><label for="q3_4_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">3.5 Does the curriculum include a module on security best practices?</div>
+        <div class="question-guidance">Key management, hardware wallets, backup procedures, social engineering awareness.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q3_5" id="q3_5_yes" value="2"><label for="q3_5_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q3_5" id="q3_5_partial" value="1"><label for="q3_5_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q3_5" id="q3_5_no" value="0"><label for="q3_5_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
+        <button class="btn btn-primary" onclick="nextPage()">Next Category →</button>
+      </div>
+    </div>
+
+    <!-- Category 4: Pedagogical Quality -->
+    <div class="page" id="page-4">
+      <div class="category-header">
+        <div class="category-title">Category 4: Pedagogical Quality</div>
+        <div class="category-weight">Weight: 15% of overall score</div>
+      </div>
+      
+      <div class="question-card">
+        <div class="question-text">4.1 Does every module have clearly stated, measurable learning objectives?</div>
+        <div class="question-guidance">Using action verbs: explain, demonstrate, analyze, compare.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q4_1" id="q4_1_yes" value="2"><label for="q4_1_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q4_1" id="q4_1_partial" value="1"><label for="q4_1_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q4_1" id="q4_1_no" value="0"><label for="q4_1_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">4.2 Does the curriculum employ varied assessment methods?</div>
+        <div class="question-guidance">Quizzes, assignments, projects, discussions, practical exercises.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q4_2" id="q4_2_yes" value="2"><label for="q4_2_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q4_2" id="q4_2_partial" value="1"><label for="q4_2_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q4_2" id="q4_2_no" value="0"><label for="q4_2_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">4.3 Are active learning strategies incorporated?</div>
+        <div class="question-guidance">Problem-based learning, case studies, simulations, peer teaching, labs.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q4_3" id="q4_3_yes" value="2"><label for="q4_3_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q4_3" id="q4_3_partial" value="1"><label for="q4_3_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q4_3" id="q4_3_no" value="0"><label for="q4_3_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">4.4 Are real-world examples and case studies used to contextualize concepts?</div>
+        <div class="question-guidance">Making abstract concepts concrete and memorable.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q4_4" id="q4_4_yes" value="2"><label for="q4_4_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q4_4" id="q4_4_partial" value="1"><label for="q4_4_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q4_4" id="q4_4_no" value="0"><label for="q4_4_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">4.5 Is there documentation enabling consistent delivery by different instructors?</div>
+        <div class="question-guidance">Instructor guide, facilitator manual, or equivalent.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q4_5" id="q4_5_yes" value="2"><label for="q4_5_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q4_5" id="q4_5_partial" value="1"><label for="q4_5_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q4_5" id="q4_5_no" value="0"><label for="q4_5_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
+        <button class="btn btn-primary" onclick="nextPage()">Next Category →</button>
+      </div>
+    </div>
+
+    <!-- Category 5: Neutrality -->
+    <div class="page" id="page-5">
+      <div class="category-header">
+        <div class="category-title">Category 5: Neutrality & Objectivity</div>
+        <div class="category-weight">Weight: 10% of overall score</div>
+      </div>
+      
+      <div class="question-card">
+        <div class="question-text">5.1 Does your curriculum disclose all material conflicts of interest?</div>
+        <div class="question-guidance">Bitcoin holdings, commercial relationships, funding sources.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q5_1" id="q5_1_yes" value="2"><label for="q5_1_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q5_1" id="q5_1_partial" value="1"><label for="q5_1_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q5_1" id="q5_1_no" value="0"><label for="q5_1_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">5.2 Does the curriculum present Bitcoin's risks alongside its strengths?</div>
+        <div class="question-guidance">Volatility, regulatory uncertainty, UX challenges, environmental criticism.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q5_2" id="q5_2_yes" value="2"><label for="q5_2_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q5_2" id="q5_2_partial" value="1"><label for="q5_2_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q5_2" id="q5_2_no" value="0"><label for="q5_2_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">5.3 Is the curriculum free from promotion of specific commercial products?</div>
+        <div class="question-guidance">No endorsements of specific exchanges, wallets, or services.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q5_3" id="q5_3_yes" value="2"><label for="q5_3_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q5_3" id="q5_3_partial" value="1"><label for="q5_3_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q5_3" id="q5_3_no" value="0"><label for="q5_3_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">5.4 Does the curriculum avoid maximalist rhetoric and hyperbolic language?</div>
+        <div class="question-guidance">Tone should be professorial, not promotional.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q5_4" id="q5_4_yes" value="2"><label for="q5_4_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q5_4" id="q5_4_partial" value="1"><label for="q5_4_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q5_4" id="q5_4_no" value="0"><label for="q5_4_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
+        <button class="btn btn-primary" onclick="nextPage()">Next Category →</button>
+      </div>
+    </div>
+
+    <!-- Category 6: Currency -->
+    <div class="page" id="page-6">
+      <div class="category-header">
+        <div class="category-title">Category 6: Currency & Relevance</div>
+        <div class="category-weight">Weight: 10% of overall score</div>
+      </div>
+      
+      <div class="question-card">
+        <div class="question-text">6.1 Has the curriculum been substantively updated within the past 12 months?</div>
+        <div class="question-guidance">More than fixing typos — actual content review and changes.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q6_1" id="q6_1_yes" value="2"><label for="q6_1_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q6_1" id="q6_1_partial" value="1"><label for="q6_1_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q6_1" id="q6_1_no" value="0"><label for="q6_1_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">6.2 Does the curriculum reflect the current state of Bitcoin's protocol?</div>
+        <div class="question-guidance">Recent upgrades like Taproot, descriptor wallets, recent BIPs.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q6_2" id="q6_2_yes" value="2"><label for="q6_2_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q6_2" id="q6_2_partial" value="1"><label for="q6_2_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q6_2" id="q6_2_no" value="0"><label for="q6_2_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">6.3 Are recent ecosystem developments included?</div>
+        <div class="question-guidance">Lightning Network maturity, ETFs, regulatory changes, institutional adoption.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q6_3" id="q6_3_yes" value="2"><label for="q6_3_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q6_3" id="q6_3_partial" value="1"><label for="q6_3_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q6_3" id="q6_3_no" value="0"><label for="q6_3_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">6.4 Is there a formal process for periodic content review and updates?</div>
+        <div class="question-guidance">Review schedule, assigned owner, change log.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q6_4" id="q6_4_yes" value="2"><label for="q6_4_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q6_4" id="q6_4_partial" value="1"><label for="q6_4_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q6_4" id="q6_4_no" value="0"><label for="q6_4_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
+        <button class="btn btn-primary" onclick="nextPage()">Next Category →</button>
+      </div>
+    </div>
+
+    <!-- Category 7: Accessibility -->
+    <div class="page" id="page-7">
+      <div class="category-header">
+        <div class="category-title">Category 7: Accessibility & Inclusion</div>
+        <div class="category-weight">Weight: 10% of overall score</div>
+      </div>
+      
+      <div class="question-card">
+        <div class="question-text">7.1 Is the curriculum written in clear, plain language?</div>
+        <div class="question-guidance">Technical terms defined when introduced, glossary provided.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q7_1" id="q7_1_yes" value="2"><label for="q7_1_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q7_1" id="q7_1_partial" value="1"><label for="q7_1_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q7_1" id="q7_1_no" value="0"><label for="q7_1_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">7.2 Is the curriculum available in multiple formats?</div>
+        <div class="question-guidance">Text, video, audio, interactive — at least two primary formats.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q7_2" id="q7_2_yes" value="2"><label for="q7_2_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q7_2" id="q7_2_partial" value="1"><label for="q7_2_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q7_2" id="q7_2_no" value="0"><label for="q7_2_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">7.3 Does the curriculum use diverse, representative examples?</div>
+        <div class="question-guidance">Use cases from different countries, economic contexts, demographics.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q7_3" id="q7_3_yes" value="2"><label for="q7_3_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q7_3" id="q7_3_partial" value="1"><label for="q7_3_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q7_3" id="q7_3_no" value="0"><label for="q7_3_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">7.4 Does the curriculum consider economic accessibility?</div>
+        <div class="question-guidance">Free/reduced access, no expensive hardware requirements.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q7_4" id="q7_4_yes" value="2"><label for="q7_4_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q7_4" id="q7_4_partial" value="1"><label for="q7_4_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q7_4" id="q7_4_no" value="0"><label for="q7_4_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
+        <button class="btn btn-primary" onclick="nextPage()">Next Category →</button>
+      </div>
+    </div>
+
+    <!-- Category 8: Ethics -->
+    <div class="page" id="page-8">
+      <div class="category-header">
+        <div class="category-title">Category 8: Ethical Standards</div>
+        <div class="category-weight">Weight: 5% of overall score</div>
+      </div>
+      
+      <div class="question-card">
+        <div class="question-text">8.1 Does the curriculum teach security best practices accurately and prominently?</div>
+        <div class="question-guidance">Key management, seed phrases, hardware wallets, avoiding attacks.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q8_1" id="q8_1_yes" value="2"><label for="q8_1_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q8_1" id="q8_1_partial" value="1"><label for="q8_1_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q8_1" id="q8_1_no" value="0"><label for="q8_1_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">8.2 Does the curriculum responsibly disclose the risks of Bitcoin ownership?</div>
+        <div class="question-guidance">Volatility, irreversibility, key loss, regulatory risk — prominent, not buried.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q8_2" id="q8_2_yes" value="2"><label for="q8_2_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q8_2" id="q8_2_partial" value="1"><label for="q8_2_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q8_2" id="q8_2_no" value="0"><label for="q8_2_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">8.3 Does the curriculum address the environmental impact honestly?</div>
+        <div class="question-guidance">Including both criticism and counterarguments, evidence-based.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q8_3" id="q8_3_yes" value="2"><label for="q8_3_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q8_3" id="q8_3_partial" value="1"><label for="q8_3_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q8_3" id="q8_3_no" value="0"><label for="q8_3_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-text">8.4 Does the curriculum teach learners to verify information independently?</div>
+        <div class="question-guidance">"Don't trust, verify" — building critical thinking, not authority dependence.</div>
+        <div class="options">
+          <div class="option"><input type="radio" name="q8_4" id="q8_4_yes" value="2"><label for="q8_4_yes">Yes</label></div>
+          <div class="option"><input type="radio" name="q8_4" id="q8_4_partial" value="1"><label for="q8_4_partial">Partial</label></div>
+          <div class="option"><input type="radio" name="q8_4" id="q8_4_no" value="0"><label for="q8_4_no">No</label></div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
+        <button class="btn btn-primary" onclick="calculateResults()">View Results →</button>
+      </div>
+    </div>
+
+    <!-- Results Page -->
+    <div class="page" id="page-results">
+      <div class="results-section">
+        <h2 style="margin-bottom: 1rem;">Assessment Complete</h2>
+        <div class="score-display" id="overallScore">--</div>
+        <div class="score-label">Overall Readiness Score</div>
+        <div class="status-badge" id="statusBadge">Calculating...</div>
+        <p id="statusMessage" style="max-width: 600px; margin: 0 auto; line-height: 1.6; color: var(--text-dim);"></p>
+      </div>
+
+      <div class="category-scores" id="categoryScores"></div>
+
+      <div class="cta-buttons" style="margin-top: 3rem;">
+        <button class="btn btn-secondary" onclick="location.reload()">Start Over</button>
+        <a href="index.html" class="btn btn-primary" style="text-decoration: none;">Return to FBES →</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentPage = 0;
+    const totalPages = 9;
+    
+    const categories = [
+      { name: 'Technical Accuracy', weight: 0.20, questions: 5 },
+      { name: 'Economic Foundations', weight: 0.15, questions: 5 },
+      { name: 'Completeness', weight: 0.15, questions: 5 },
+      { name: 'Pedagogical Quality', weight: 0.15, questions: 5 },
+      { name: 'Neutrality', weight: 0.10, questions: 4 },
+      { name: 'Currency & Relevance', weight: 0.10, questions: 4 },
+      { name: 'Accessibility', weight: 0.10, questions: 4 },
+      { name: 'Ethical Standards', weight: 0.05, questions: 4 }
+    ];
+
+    function updateProgress() {
+      const progress = (currentPage / totalPages) * 100;
+      document.getElementById('progressFill').style.width = progress + '%';
+      
+      const labels = ['Introduction', 'Technical Accuracy', 'Economic Foundations', 'Completeness', 
+                      'Pedagogical Quality', 'Neutrality', 'Currency & Relevance', 'Accessibility', 
+                      'Ethical Standards', 'Results'];
+      document.getElementById('progressText').textContent = `${labels[currentPage]} (${currentPage}/${totalPages})`;
+    }
+
+    function showPage(pageNum) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + pageNum).classList.add('active');
+      currentPage = pageNum;
+      updateProgress();
+      window.scrollTo(0, 0);
+    }
+
+    function startAssessment() {
+      showPage(1);
+    }
+
+    function nextPage() {
+      if (currentPage < 8) {
+        showPage(currentPage + 1);
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 0) {
+        showPage(currentPage - 1);
+      }
+    }
+
+    function calculateResults() {
+      let categoryScores = [];
+      let overallScore = 0;
+
+      categories.forEach((cat, idx) => {
+        let catScore = 0;
+        let maxScore = cat.questions * 2;
+        
+        for (let q = 1; q <= cat.questions; q++) {
+          const selected = document.querySelector(`input[name="q${idx+1}_${q}"]:checked`);
+          if (selected) {
+            catScore += parseInt(selected.value);
+          }
+        }
+        
+        const percentage = (catScore / maxScore) * 100;
+        const weighted = percentage * cat.weight;
+        overallScore += weighted;
+        
+        categoryScores.push({
+          name: cat.name,
+          weight: cat.weight,
+          score: percentage
+        });
+      });
+
+      // Display results
+      document.getElementById('overallScore').textContent = Math.round(overallScore);
+      
+      const badge = document.getElementById('statusBadge');
+      const message = document.getElementById('statusMessage');
+      
+      if (overallScore >= 80) {
+        badge.textContent = '🟢 Ready to Apply';
+        badge.className = 'status-badge status-ready';
+        message.textContent = 'Your curriculum demonstrates strong alignment with FBES standards. You are ready to begin the formal endorsement process.';
+      } else if (overallScore >= 60) {
+        badge.textContent = '🟡 Nearly Ready';
+        badge.className = 'status-badge status-nearly';
+        message.textContent = 'Your curriculum shows strong foundations but has identifiable gaps. With targeted improvements, you can reach endorsement readiness.';
+      } else {
+        badge.textContent = '🔴 Needs Work';
+        badge.className = 'status-badge status-needs';
+        message.textContent = 'Your curriculum has significant gaps relative to FBES standards. Review the recommendations and consider a curriculum development consultation.';
+      }
+
+      // Category breakdown
+      const scoresDiv = document.getElementById('categoryScores');
+      scoresDiv.innerHTML = '<h3 style="margin-bottom: 1rem;">Category Breakdown</h3>';
+      
+      categoryScores.forEach(cat => {
+        const color = cat.score >= 80 ? 'var(--green)' : cat.score >= 60 ? 'var(--yellow)' : 'var(--red)';
+        scoresDiv.innerHTML += `
+          <div class="cat-score-row">
+            <div class="cat-score-name">${cat.name} <span style="color: var(--text-dim);">(${Math.round(cat.weight * 100)}%)</span></div>
+            <div class="cat-score-bar">
+              <div class="cat-score-fill" style="width: ${cat.score}%; background: ${color};"></div>
+            </div>
+            <div class="cat-score-value" style="color: ${color};">${Math.round(cat.score)}%</div>
+          </div>
+        `;
+      });
+
+      showPage('results');
+    }
+
+    updateProgress();
+  </script>
+</body>
+</html>
