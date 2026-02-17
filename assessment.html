@@ -911,7 +911,184 @@
         `;
       });
 
+      // Generate actionable recommendations
+      generateRecommendations(categoryScores);
+
       showPage('results');
+    }
+
+    // Recommendations database
+    const recommendationsDB = {
+      'Technical Accuracy': {
+        high: "Your curriculum demonstrates strong technical accuracy. Continue updating content as Bitcoin protocol evolves.",
+        medium: "Review technical content for precision. Consider having Bitcoin developers or technical experts audit your materials for accuracy.",
+        low: "Significant technical gaps identified. Recommendations: (1) Audit all protocol descriptions against Bitcoin Core documentation, (2) Review cryptographic explanations with qualified experts, (3) Ensure UTXO model and transaction mechanics are accurately depicted, (4) Verify mining/consensus descriptions match current implementation.",
+        actions: [
+          "Cross-reference protocol descriptions with Bitcoin Core source code",
+          "Have technical content reviewed by Bitcoin developers",
+          "Update any outdated technical specifications",
+          "Ensure accurate representation of cryptographic primitives",
+          "Verify transaction fee and mempool mechanics"
+        ]
+      },
+      'Economic Foundations': {
+        high: "Strong coverage of economic principles. Your curriculum effectively communicates Bitcoin's monetary properties.",
+        medium: "Economic foundations are present but could be strengthened. Consider deeper coverage of Austrian economics and monetary history.",
+        low: "Economic content needs substantial development. Recommendations: (1) Add comprehensive coverage of sound money principles, (2) Include monetary history context (gold standard, Bretton Woods, fiat), (3) Explain stock-to-flow and scarcity economics, (4) Cover inflation/deflation dynamics clearly.",
+        actions: [
+          "Add section on monetary history and fiat currency failures",
+          "Include stock-to-flow model explanation",
+          "Cover Austrian economics fundamentals",
+          "Explain Bitcoin's fixed supply and halving schedule",
+          "Compare Bitcoin to historical sound money (gold)"
+        ]
+      },
+      'Completeness': {
+        high: "Comprehensive curriculum coverage. All major Bitcoin topics are adequately addressed.",
+        medium: "Good coverage but some gaps exist. Review the curriculum against the full FBES topic framework.",
+        low: "Significant topic gaps identified. Recommendations: (1) Ensure coverage spans technical, economic, historical, and practical dimensions, (2) Include self-custody and security modules, (3) Add Lightning Network and Layer 2 content, (4) Cover regulatory landscape and compliance considerations.",
+        actions: [
+          "Map curriculum against FBES comprehensive topic list",
+          "Add missing technical modules (nodes, mining, wallets)",
+          "Include practical self-custody training",
+          "Cover Layer 2 solutions (Lightning Network)",
+          "Add regulatory and legal considerations"
+        ]
+      },
+      'Pedagogical Quality': {
+        high: "Excellent instructional design. Learning objectives are clear and assessment methods are effective.",
+        medium: "Solid pedagogical foundation with room for improvement. Consider adding more structured assessments and learning objectives.",
+        low: "Pedagogical structure needs work. Recommendations: (1) Define clear learning objectives for each module, (2) Implement formative and summative assessments, (3) Add practical exercises and hands-on labs, (4) Create progressive skill-building pathways.",
+        actions: [
+          "Write explicit learning objectives for every module",
+          "Add knowledge checks and quizzes throughout",
+          "Include hands-on exercises (wallet setup, transactions)",
+          "Create cumulative assessments at course milestones",
+          "Develop case studies and real-world scenarios"
+        ]
+      },
+      'Neutrality': {
+        high: "Content maintains appropriate objectivity. Balanced presentation of Bitcoin without undue hype or FUD.",
+        medium: "Generally neutral but some bias detected. Review content for promotional language or unfounded claims.",
+        low: "Neutrality concerns identified. Recommendations: (1) Remove price speculation and 'number go up' messaging, (2) Present risks and limitations honestly, (3) Avoid tribal language or maximalist rhetoric in educational context, (4) Cite primary sources rather than opinion pieces.",
+        actions: [
+          "Audit content for promotional or speculative language",
+          "Add balanced coverage of risks and challenges",
+          "Remove price predictions and investment advice",
+          "Cite academic and primary sources",
+          "Present altcoin/competitor context objectively where relevant"
+        ]
+      },
+      'Currency & Relevance': {
+        high: "Content is current and reflects the latest Bitcoin developments.",
+        medium: "Mostly current but some outdated content detected. Schedule regular content reviews.",
+        low: "Content requires significant updates. Recommendations: (1) Update all statistics and metrics to current data, (2) Include recent protocol upgrades (Taproot, etc.), (3) Reflect current regulatory landscape, (4) Add recent institutional adoption developments.",
+        actions: [
+          "Update all market data and statistics",
+          "Add Taproot and recent BIP coverage",
+          "Refresh regulatory landscape content",
+          "Include current institutional adoption examples",
+          "Establish quarterly content review schedule"
+        ]
+      },
+      'Accessibility': {
+        high: "Excellent accessibility. Content is available in multiple formats and accommodates diverse learners.",
+        medium: "Adequate accessibility with room for improvement. Consider adding alternative formats and clearer language.",
+        low: "Accessibility gaps identified. Recommendations: (1) Provide content in multiple formats (text, video, audio), (2) Ensure materials are screen-reader compatible, (3) Use clear, jargon-free language with glossaries, (4) Offer multiple difficulty levels or learning tracks.",
+        actions: [
+          "Add video/audio versions of key content",
+          "Create comprehensive glossary of terms",
+          "Test materials with screen readers",
+          "Develop beginner/intermediate/advanced tracks",
+          "Provide translations for key markets"
+        ]
+      },
+      'Ethical Standards': {
+        high: "Strong ethical foundation. Appropriate disclaimers and responsible messaging throughout.",
+        medium: "Ethical standards are adequate but could be strengthened in some areas.",
+        low: "Ethical concerns identified. Recommendations: (1) Add clear disclaimers about financial risk, (2) Include privacy and security best practices, (3) Avoid conflicts of interest in recommendations, (4) Present not-financial-advice disclosures prominently.",
+        actions: [
+          "Add prominent risk and not-financial-advice disclaimers",
+          "Include privacy-preserving best practices",
+          "Disclose any potential conflicts of interest",
+          "Add responsible custody and security guidance",
+          "Include regulatory compliance reminders"
+        ]
+      }
+    };
+
+    function generateRecommendations(categoryScores) {
+      let recsHTML = '<div class="recommendations-section" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--gray);">';
+      recsHTML += '<h3 style="margin-bottom: 1.5rem; color: var(--gold);">📋 Actionable Recommendations</h3>';
+      
+      // Sort categories by score (lowest first) for priority ordering
+      const sorted = [...categoryScores].sort((a, b) => a.score - b.score);
+      
+      // Count areas needing work
+      const needsWork = sorted.filter(c => c.score < 60).length;
+      const nearlyReady = sorted.filter(c => c.score >= 60 && c.score < 80).length;
+      
+      if (needsWork === 0 && nearlyReady === 0) {
+        recsHTML += '<p style="color: var(--green); margin-bottom: 1rem;">✅ Your curriculum meets FBES standards across all categories. Focus on maintaining currency and continuous improvement.</p>';
+      } else {
+        recsHTML += '<p style="color: var(--text-dim); margin-bottom: 1.5rem;">Based on your responses, here are prioritized recommendations to strengthen your curriculum:</p>';
+      }
+      
+      sorted.forEach((cat, idx) => {
+        const rec = recommendationsDB[cat.name];
+        if (!rec) return;
+        
+        let level, levelColor, levelIcon;
+        if (cat.score >= 80) {
+          level = 'high';
+          levelColor = 'var(--green)';
+          levelIcon = '✅';
+        } else if (cat.score >= 60) {
+          level = 'medium';
+          levelColor = 'var(--yellow)';
+          levelIcon = '⚠️';
+        } else {
+          level = 'low';
+          levelColor = 'var(--red)';
+          levelIcon = '🔴';
+        }
+        
+        recsHTML += `
+          <div style="background: var(--gray); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border-left: 4px solid ${levelColor};">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <h4 style="color: var(--text);">${levelIcon} ${cat.name}</h4>
+              <span style="color: ${levelColor}; font-weight: 600;">${Math.round(cat.score)}%</span>
+            </div>
+            <p style="color: var(--text-dim); margin-bottom: 1rem; line-height: 1.6;">${rec[level]}</p>
+            ${cat.score < 80 ? `
+              <div style="margin-top: 1rem;">
+                <div style="font-size: 0.85rem; color: var(--gold); margin-bottom: 0.5rem; font-weight: 600;">Action Items:</div>
+                <ul style="list-style: none; font-size: 0.9rem;">
+                  ${rec.actions.slice(0, cat.score < 60 ? 5 : 3).map(a => `<li style="padding: 0.25rem 0; color: var(--text-dim);">→ ${a}</li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+      
+      // Next steps section
+      recsHTML += `
+        <div style="background: linear-gradient(135deg, var(--gray), var(--gray-light)); border-radius: 12px; padding: 1.5rem; margin-top: 2rem;">
+          <h4 style="color: var(--gold); margin-bottom: 1rem;">📌 Next Steps</h4>
+          <ol style="margin-left: 1.5rem; line-height: 1.8; color: var(--text-dim);">
+            <li>Address <strong style="color: var(--red);">red</strong> categories first — these are critical gaps</li>
+            <li>Then improve <strong style="color: var(--yellow);">yellow</strong> categories to reach endorsement threshold</li>
+            <li>Document changes and maintain version control of curriculum updates</li>
+            <li>Re-assess after implementing changes to measure improvement</li>
+            <li>When ready, contact FBES to begin formal endorsement process</li>
+          </ol>
+        </div>
+      `;
+      
+      recsHTML += '</div>';
+      
+      document.getElementById('categoryScores').insertAdjacentHTML('afterend', recsHTML);
     }
 
     updateProgress();
